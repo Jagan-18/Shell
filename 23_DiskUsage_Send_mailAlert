@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#df -hT | grep -vE 'tmpfs|Filesystem' | awk '{print $6 " " $1}'
+#df -hT | grep -vE 'tmpfs|Filesystem' | awk '{print $6}' | cut -d "%" -f1
+
+
+DISK_USAGE=$(df -hT | grep -vE 'tmpfs')
+DISK_THRESHOLD=1
+message=""
+
+while IFS= read line; do
+    usage=$(echo $line | awk '{print $6F}' | cut -d % -f1)
+
+     # Extract partition name (1st field in the df output, e.g., '/dev/sda1')
+    partition=$(echo $line | awk '{print $1F}')
+
+    # Compare usage against threshold
+    if [ $usage -ge $DISK_THRESHOLD ]; then
+        # Append high disk usage information to the message
+        message+="High Disk usage on $partition: $usage <br>"
+    fi
+done <<< "$DISK_USAGE"
+
+echo -e "message: $message"
+
+#echo -e "$message" | mail -s "High Disk Usage" info@joindevops.com
+
+#sh mail.sh info@joindevops.com "High Disk Usage" "$message" "DevOps Team"
+
+sh mail.sh "Devops Team" "High Dik usage" "$message" "info@joindevops.com" ALERT High Disk Usage"
+
+
+
+
+
+
